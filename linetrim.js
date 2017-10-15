@@ -1,22 +1,17 @@
 'use strict'
 
+// This code is a modified version of this:
+// https://github.com/mikolalysenko/overlay-pslg
+
 var snapRound = require('clean-pslg')
 var cdt2d = require('cdt2d')
 var bsearch = require('binary-search-bounds')
-var boundary = require('simplicial-complex-boundary')
 
-module.exports = overlayPSLG
+module.exports = lineTrimPSLG
 
 var RED  = 0
 var BLUE = 1
 
-var OPERATORS = {
-  'xor':  [0, 1, 1, 0],
-  'or':   [0, 1, 1, 1],
-  'and':  [0, 0, 0, 1],
-  'sub':  [0, 1, 0, 0],
-  'rsub': [0, 0, 1, 0]
-}
 
 function getTable(op) {
   if(typeof op !== 'string') {
@@ -48,10 +43,7 @@ function edgeCellIndex(edge, cell) {
 
 function buildCellIndex(cells) {
   //Initialize cell index
-  var cellIndex = new Array(3*cells.length)
-  for(var i=0; i<3*cells.length; ++i) {
-    cellIndex[i] = -1
-  }
+  var cellIndex = new Array(3*cells.length).fill(-1)
 
   //Sort edges
   var edges = []
@@ -98,21 +90,23 @@ function canonicalizeEdges(edges) {
 
 
 var TMP = [0,0]
-function isConstraint(edges, a, b) {
+function findEdge(edges, a, b) {
   TMP[0] = Math.min(a,b)
   TMP[1] = Math.max(a,b)
-  return bsearch.eq(edges, TMP, compareLex2) >= 0
+  return bsearch.eq(edges, TMP, compareLex2)
 }
+
+function isConstraint(edges, a, b) {
+  return findEdge(edges, a, b) >= 0
+}
+
 
 //Classify all cells within boundary
 function markCells(cells, adj, edges) {
 
   //Initialize active/next queues and flags
   var flags = new Array(cells.length)
-  var constraint = new Array(3*cells.length)
-  for(var i=0; i<3*cells.length; ++i) {
-    constraint[i] = false
-  }
+  var constraint = new Array(3*cells.length).fill(false)
   var active = []
   var next   = []
   for(var i=0; i<cells.length; ++i) {
@@ -168,48 +162,12 @@ function markCells(cells, adj, edges) {
   return flags
 }
 
-function setIntersect(colored, edges) {
-  var ptr = 0
-  for(var i=0,j=0; i<colored.length&&j<edges.length; ) {
-    var e = colored[i]
-    var f = edges[j]
-    var d = e[0]-f[0] || e[1]-f[1]
-    if(d < 0) {
-      i += 1
-    } else if(d > 0) {
-      j += 1
-    } else {
-      colored[ptr++] = colored[i]
-      i += 1
-      j += 1
-    }
-  }
-  colored.length = ptr
-  return colored
-}
-
-function relabelEdges(edges, labels) {
-  for(var i=0; i<edges.length; ++i) {
-    var e = edges[i]
-    e[0] = labels[e[0]]
-    e[1] = labels[e[1]]
-  }
-}
-
-function markEdgesActive(edges, labels) {
+function removeUnusedPoints(points, edges) {
+  var labels = new Array(points.length).fill(-1)
   for(var i=0; i<edges.length; ++i) {
     var e = edges[i]
     labels[e[0]] = labels[e[1]] = 1
   }
-}
-
-function removeUnusedPoints(points, redE, blueE) {
-  var labels = new Array(points.length)
-  for(var i=0; i<labels.length; ++i) {
-    labels[i] = -1
-  }
-  markEdgesActive(redE, labels)
-  markEdgesActive(blueE, labels)
 
   var ptr = 0
   for(var i=0; i<points.length; ++i) {
@@ -218,30 +176,35 @@ function removeUnusedPoints(points, redE, blueE) {
       points[ptr++] = points[i]
     }
   }
+
   points.length = ptr
-  relabelEdges(redE, labels)
-  relabelEdges(blueE, labels)
+
+  for(var i=0; i<edges.length; ++i) {
+    var e = edges[i]
+    e[0] = labels[e[0]]
+    e[1] = labels[e[1]]
+  }
 }
 
-function overlayPSLG(redPoints, redEdges, bluePoints, blueEdges, op) {
+function lineTrimPSLG(linePoints, lineEdges, polyPoints, polyEdges, modeIntersect) {
   //1.  concatenate points
-  var numRedPoints = redPoints.length
-  var points = redPoints.concat(bluePoints)
+  var numLinePoints = linePoints.length
+  var points = linePoints.concat(polyPoints)
 
   //2.  concatenate edges
-  var numRedEdges  = redEdges.length
-  var numBlueEdges = blueEdges.length
+  var numRedEdges  = lineEdges.length
+  var numBlueEdges = polyEdges.length
   var edges        = new Array(numRedEdges + numBlueEdges)
   var colors       = new Array(numRedEdges + numBlueEdges)
-  for(var i=0; i<redEdges.length; ++i) {
-    var e      = redEdges[i]
+  for(var i=0; i<lineEdges.length; ++i) {
+    var e      = lineEdges[i]
     colors[i]  = RED
     edges[i]   = [ e[0], e[1] ]
   }
-  for(var i=0; i<blueEdges.length; ++i) {
-    var e      = blueEdges[i]
+  for(var i=0; i<polyEdges.length; ++i) {
+    var e      = polyEdges[i]
     colors[i+numRedEdges]  = BLUE
-    edges[i+numRedEdges]   = [ e[0]+numRedPoints, e[1]+numRedPoints ]
+    edges[i+numRedEdges]   = [ e[0]+numLinePoints, e[1]+numLinePoints ]
   }
 
   //3.  run snap rounding with edge colors
@@ -253,6 +216,7 @@ function overlayPSLG(redPoints, redEdges, bluePoints, blueEdges, op) {
   //5.  extract red and blue edges
   var redE = [], blueE = []
   for(var i=0; i<edges.length; ++i) {
+    if (edges[i][0] === edges[i][1]) continue
     if(colors[i] === RED) {
       redE.push(edges[i])
     } else {
@@ -260,41 +224,47 @@ function overlayPSLG(redPoints, redEdges, bluePoints, blueEdges, op) {
     }
   }
 
-  //6.  triangulate
+  //6.  triangulate. TODO: We should only need the poly edges for this.
   var cells = cdt2d(points, edges, { delaunay: false })
 
   //7. build adjacency data structure
   var adj = buildCellIndex(cells)
 
   //8. classify triangles
-  var redFlags = markCells(cells, adj, redE)
-  var blueFlags = markCells(cells, adj, blueE)
+  var polyFlags = markCells(cells, adj, blueE)
 
-  //9. filter out cels which are not part of triangulation
-  var table = getTable(op)
-  var ptr = 0
+  //9. classify which line segments are inside and outside of the polygon
+  var flags = new Array(redE.length).fill(1)
   for(var i=0; i<cells.length; ++i) {
-    var code = ((redFlags[i] < 0)<<1) + (blueFlags[i] < 0)
-    if(table[code]) {
-      cells[ptr++] = cells[i]
+    var c = cells[i]
+    var polarity = polyFlags[i]
+    //flags[i] = 0
+    for(var j=0; j<3; ++j) {
+      var a = c[(j+1)%3]
+      var b = c[(j+2)%3]
+      var e = findEdge(redE, a, b)
+      if (e >= 0) {
+        flags[e] = polarity
+      }
     }
   }
-  cells.length = ptr
 
-  //10. extract boundary
-  var bnd = boundary(cells)
-  canonicalizeEdges(bnd)
+  //10. filter out line segments
+  const keepIn = modeIntersect
+  const keepOut = !modeIntersect
 
-  //11. Intersect constraint edges with boundary
-  redE = setIntersect(redE, bnd)
-  blueE = setIntersect(blueE, bnd)
-
-  //12. filter old points
-  removeUnusedPoints(points, redE, blueE)
+  const keptEdges = []
+  for(var i=0; i<redE.length; ++i) {
+    const polarity = flags[i]
+    if (polarity < 0 ? keepIn : keepOut) keptEdges.push(redE[i])
+  }
+  
+  //11. filter old points
+  removeUnusedPoints(points, keptEdges)
 
   return {
     points: points,
-    red:    redE,
-    blue:   blueE
+    edges: keptEdges,
   }
 }
+

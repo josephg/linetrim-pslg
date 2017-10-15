@@ -1,16 +1,11 @@
 {
-  "name": "overlay-pslg",
+  "name": "linetrim-pslg",
   "version": "1.0.0",
-  "description": "Computes a boolean combination of two planar graphs",
-  "main": "overlay-pslg.js",
-  "directories": {
-    "example": "example",
-    "test": "test"
-  },
+  "description": "Trims a set of lines based on a planar graph",
+  "main": "linetrim.js",
   "dependencies": {
     "binary-search-bounds": "^2.0.3",
     "clean-pslg": "^1.1.0",
-    "simplicial-complex-boundary": "^1.0.1",
     "cdt2d": "^1.0.0"
   },
   "devDependencies": {
@@ -20,14 +15,14 @@
     "robust-segment-intersect": "^1.0.1",
     "segment2": "^0.3.2",
     "vec2": "^1.6.0",
-    "tape": "^4.0.0"    
+    "tape": "^4.0.0"
   },
   "scripts": {
     "test": "tape test/*.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mikolalysenko/overlay-pslg.git"
+    "url": "https://github.com/josephg/linetrim-pslg.git"
   },
   "keywords": [
     "planar",
@@ -37,19 +32,15 @@
     "pslg",
     "boolean",
     "csg",
-    "union",
     "intersect",
     "subtract",
-    "or",
-    "xor",
-    "and",
     "polygon",
     "geometry"
   ],
-  "author": "Mikola Lysenko",
+  "author": "Joseph Gentle <me@josephg.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mikolalysenko/overlay-pslg/issues"
+    "url": "https://github.com/josephg/linetrim-pslg/issues"
   },
-  "homepage": "https://github.com/mikolalysenko/overlay-pslg"
+  "homepage": "https://github.com/josephg/linetrim-pslg"
 }

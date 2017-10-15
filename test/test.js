@@ -1,31 +1,31 @@
 'use strict'
 
 var tape = require('tape')
-var overlay = require('../overlay-pslg')
+var linetrim = require('../linetrim')
 
-tape('basic overlay test', function(t) {
+const linePoints = [[0,0], [100,80]]
+const lineEdges = [[0, 1]]
 
-  //This test is not yet very sophisticated, more work is needed
-  var redPoints = [
-    [0.5, 0.25],
-    [0.25, 0.5],
-    [0.75, 0.75]
-  ]
-  var redEdges = [ [0,1], [1,2], [2,0] ]
+const polyPoints = [[10,10], [20,10], [20, 20], [10, 20]]
+const polyEdges = [[0,1],[1,2],[2,3],[3,0]]
 
-  var bluePoints = [
-    [0.25, 0.25],
-    [0.25,  0.6],
-    [0.6, 0.6],
-    [0.6, 0.25]
-  ]
-  var blueEdges = [ [0,1], [1,2], [2,3], [3,0] ]
+tape('simple intersect check', function(t) {
+  const {points, edges} = linetrim(linePoints, lineEdges, polyPoints, polyEdges, true)
 
-  var result = overlay(redPoints, redEdges, bluePoints, blueEdges, 'and')
-
-  t.equals(result.points.length, 5)
-  t.equals(result.blue.length, 2)
-  t.equals(result.red.length, 3)
-
+  // This is brittle because the order can change. But if it does for this
+  // case, I can eyeball it and fix the test.
+  t.deepEquals(points, [ [ 12.5, 10 ], [ 20, 16 ] ])
+  t.deepEquals(edges, [ [ 0, 1 ] ])
   t.end()
 })
+
+tape('simple subtract check', function(t) {
+   const {points, edges} = linetrim(linePoints, lineEdges, polyPoints, polyEdges, false)
+
+  // This is brittle because the order can change. But if it does for this
+  // case, I can eyeball it and fix the test.
+  t.deepEquals(points, [ [ 0, 0 ], [ 100, 80 ], [ 12.5, 10 ], [ 20, 16 ] ])
+  t.deepEquals(edges, [ [ 0, 2 ], [ 1, 3 ] ])
+  t.end()
+})
+
