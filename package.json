@@ -1,8 +1,8 @@
 {
-  "name": "linetrim-pslg",
+  "name": "pathtrim-pslg",
   "version": "1.0.1",
   "description": "Trims a set of lines based on a planar graph",
-  "main": "linetrim.js",
+  "main": "pathtrim.js",
   "dependencies": {
     "binary-search-bounds": "^2.0.3",
     "clean-pslg": "^1.1.0",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/josephg/linetrim-pslg.git"
+    "url": "https://github.com/josephg/pathtrim-pslg.git"
   },
   "keywords": [
     "planar",
@@ -40,7 +40,7 @@
   "author": "Joseph Gentle <me@josephg.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/josephg/linetrim-pslg/issues"
+    "url": "https://github.com/josephg/pathtrim-pslg/issues"
   },
-  "homepage": "https://github.com/josephg/linetrim-pslg"
+  "homepage": "https://github.com/josephg/pathtrim-pslg"
 }

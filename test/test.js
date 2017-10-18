@@ -1,7 +1,7 @@
 'use strict'
 
 var tape = require('tape')
-var linetrim = require('../linetrim')
+var pathtrim = require('../pathtrim')
 
 const linePoints = [[0,0], [100,80]]
 const lineEdges = [[0, 1]]
@@ -10,7 +10,7 @@ const polyPoints = [[10,10], [20,10], [20, 20], [10, 20]]
 const polyEdges = [[0,1],[1,2],[2,3],[3,0]]
 
 tape('simple intersect check', function(t) {
-  const {points, edges} = linetrim(linePoints, lineEdges, polyPoints, polyEdges, true)
+  const {points, edges} = pathtrim(linePoints, lineEdges, polyPoints, polyEdges, true)
 
   // This is brittle because the order can change. But if it does for this
   // case, I can eyeball it and fix the test.
@@ -20,7 +20,7 @@ tape('simple intersect check', function(t) {
 })
 
 tape('simple subtract check', function(t) {
-   const {points, edges} = linetrim(linePoints, lineEdges, polyPoints, polyEdges, false)
+   const {points, edges} = pathtrim(linePoints, lineEdges, polyPoints, polyEdges, false)
 
   // This is brittle because the order can change. But if it does for this
   // case, I can eyeball it and fix the test.
