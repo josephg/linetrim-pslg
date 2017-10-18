@@ -1,6 +1,6 @@
 {
   "name": "linetrim-pslg",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Trims a set of lines based on a planar graph",
   "main": "linetrim.js",
   "dependencies": {
