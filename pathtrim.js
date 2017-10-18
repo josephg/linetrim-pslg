@@ -7,7 +7,7 @@ var snapRound = require('clean-pslg')
 var cdt2d = require('cdt2d')
 var bsearch = require('binary-search-bounds')
 
-module.exports = lineTrimPSLG
+module.exports = require('util').deprecate(lineTrimPSLG, 'linetrim-pslg renamed to pathtrim-pslg. Please update')
 
 var RED  = 0
 var BLUE = 1

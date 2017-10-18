@@ -1,5 +1,5 @@
 //Load the module
-var linetrim = require('../linetrim')
+var pathtrim = require('../pathtrim')
 
 //Red PSLG - Define a triangle
 var linePoints = [
@@ -19,4 +19,4 @@ var polyPoints = [
 var polyEdges = [ [0,1], [1,2], [2,3], [3,0] ]
 
 //Construct intersection
-console.log(linetrim(linePoints, lineEdges, polyPoints, polyEdges, false))
+console.log(pathtrim(linePoints, lineEdges, polyPoints, polyEdges, false))

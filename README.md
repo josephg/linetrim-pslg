@@ -1,4 +1,4 @@
-linetrim-pslg
+pathtrim-pslg
 ============
 
 This module trims the edges in a planar straight line graph (pslg) based on another planar straight line graph.
@@ -14,15 +14,15 @@ Here is a simple example showing how to use this module to compute the intersect
 
 ```javascript
 //Load the module
-var linetrim = require('linetrim-pslg')
+var pathtrim = require('pathtrim-pslg')
 
 //Red PSLG - Define a triangle
-var linePoints = [
+var pathPoints = [
   [0.5, 0.25],
   [0.25, 0.5],
   [0.75, 0.75]
 ]
-var lineEdges = [ [0,1], [1,2], [2,0] ]
+var pathEdges = [ [0,1], [1,2], [2,0] ]
 
 //Blue PSLG - Define a square
 var polyPoints = [
@@ -34,7 +34,7 @@ var polyPoints = [
 var polyEdges = [ [0,1], [1,2], [2,3], [3,0] ]
 
 //Construct intersection
-console.log(linetrim(linePoints, lineEdges, polyPoints, polyEdges, false))
+console.log(pathtrim(pathPoints, pathEdges, polyPoints, polyEdges, false))
 ```
 
 #### Output
@@ -58,17 +58,17 @@ We can visualize this result as follows:
 To install this module, you can use [npm](http://docs.npmjs.com).  The command is as follows:
 
 ```
-npm i linetrim-pslg
+npm i pathtrim-pslg
 ```
 
 It works in any reasonable CommonJS environment like [node.js](http://nodejs.org). If you want to use it in a browser, you should use [browserify](http://browserify.org).
 
 # API
 
-#### `require('linetrim-pslg')(linePoints, lineEdges, bluePoints, blueEdges[, intersectMode])`
+#### `require('pathtrim-pslg')(linePoints, lineEdges, bluePoints, blueEdges[, intersectMode])`
 Computes a Boolean operation between two planar straight line graphs.
 
-* `linePoints, lineEdges` are the points and edges of the lines that will be cut up
+* `linePoints, lineEdges` are the points and edges of the paths that will be cut up
 * `bluePoints, blueEdges` are the points and edges of the polygons
 * `intersectMode` specifies if we're in intersect mode (`true`) or subtract mode (`false`)
 
